@@ -11,7 +11,7 @@ def dbadd_user(uid, uname):
         valuess = (uid, uname)
         cursor.execute(sqlite_insert_query, valuess)
         sqlite_connection.commit()
-
+        print("Пользователь добавлен")
         cursor.close()
 
     except sqlite3.Error as error:
@@ -33,7 +33,7 @@ def dbadd_pic(id, uid):
         valuess = (id, uid)
         cursor.execute(sqlite_insert_query, valuess)
         sqlite_connection.commit()
-
+        print("Картинка добавлена")
         cursor.close()
 
     except sqlite3.Error as error:
@@ -55,7 +55,7 @@ def setup_users():
         cursor = sqlite_connection.cursor()
         cursor.execute(sqlite_create_table_query)
         sqlite_connection.commit()
-
+        print("Таблица пользователей создана")
         cursor.close()
 
     except sqlite3.Error as error:
@@ -78,7 +78,7 @@ def setup_pics():
         cursor = sqlite_connection.cursor()
         cursor.execute(sqlite_create_table_query)
         sqlite_connection.commit()
-
+        print("Таблица картинок создана")
         cursor.close()
 
     except sqlite3.Error as error:
