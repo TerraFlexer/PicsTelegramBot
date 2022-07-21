@@ -11,6 +11,7 @@ rating_flag = 0
 
 db.setup_users()
 db.setup_pics()
+db.setup_likes()
 
 def add_user(id, name):
 	db.dbadd_user(id, name)
@@ -66,10 +67,16 @@ def handle_reaction(message):
 		elif (message.text == "dislike"):
 			rate_change = -1
 		pic_id = db.dbget_lastnum(message.chat.id)
-		db.dbupdate_rating(message.chat.id, pic_id, rate_change)
-		rate = db.dbget_rating(pic_id)
-		msgtxt = "Ваш голос учтен, текущий рейтинг картинки: " + str(rate)
-		bot.send_message(message.chat.id, msgtxt, reply_markup=types.ReplyKeyboardRemove())
+		exist = db.dbadd_like(message.chat.id, pic_id, rate_change)
+		if (exist == 0):
+			db.dbupdate_rating(message.chat.id, pic_id, rate_change)
+			rate = db.dbget_rating(pic_id)
+			msgtxt = "Ваш голос учтен, текущий рейтинг картинки: " + str(rate)
+			bot.send_message(message.chat.id, msgtxt, reply_markup=types.ReplyKeyboardRemove())
+		else:
+			rate = db.dbget_rating(pic_id)
+			msgtxt = "Вы уже оценивали эту картинку, текущий рейтинг картинки: " + str(rate)
+			bot.send_message(message.chat.id, msgtxt, reply_markup=types.ReplyKeyboardRemove())
 	else:
 		bot.send_message(message.chat.id, "Если вам что - то непонятно, напишите /help")
 

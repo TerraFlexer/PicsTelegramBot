@@ -43,28 +43,6 @@ def dbupdate_lastnum(uid, newlnum):
             print("dbupdate_lastnum: Соединение с SQLite закрыто")
 
 
-def dbadd_user(uid, uname):
-    try:
-        sqlite_connection = sqlite3.connect('users.db')
-        cursor = sqlite_connection.cursor()
-        sqlite_insert_query = '''INSERT INTO users
-                                (tele_id, name, lastnum)
-                                VALUES
-                                (?, ?, 0);'''
-        valuess = (uid, uname)
-        cursor.execute(sqlite_insert_query, valuess)
-        sqlite_connection.commit()
-        print("Пользователь добавлен")
-        cursor.close()
-
-    except sqlite3.Error as error:
-        print("Ошибка при подключении к sqlite:", error)
-    finally:
-        if (sqlite_connection):
-            sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
-
-
 def dbget_rating(pid):
     try:
         sqlite_connection = sqlite3.connect('pics.db')
@@ -108,6 +86,30 @@ def dbupdate_rating(uid, pid, rate):
             print("dbupdate_rating: Соединение с SQLite закрыто")
 
 
+def dbcheck_like(uid, pid):
+    try:
+        sqlite_connection = sqlite3.connect('likes.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_select_query = """SELECT *
+                                FROM likes
+                                WHERE user_id = ? AND pic_id = ?;"""
+        cursor.execute(sqlite_select_query, (uid, pid,))
+        like = cursor.fetchone()
+        print("dbchecklike: Значение проверено")
+        cursor.close()
+        if (like == None):
+            return 0
+        else:
+            return 1
+
+    except sqlite3.Error as error:
+        print("dbchecklike: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbchecklike: Соединение с SQLite закрыто")
+
+
 def dbadd_pic(id, uid):
     try:
         sqlite_connection = sqlite3.connect('pics.db')
@@ -128,6 +130,52 @@ def dbadd_pic(id, uid):
         if (sqlite_connection):
             sqlite_connection.close()
             print("Соединение с SQLite закрыто")
+
+
+def dbadd_user(uid, uname):
+    try:
+        sqlite_connection = sqlite3.connect('users.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_insert_query = '''INSERT INTO users
+                                (tele_id, name, lastnum)
+                                VALUES
+                                (?, ?, 0);'''
+        valuess = (uid, uname)
+        cursor.execute(sqlite_insert_query, valuess)
+        sqlite_connection.commit()
+        print("Пользователь добавлен")
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("Соединение с SQLite закрыто")
+
+
+def dbadd_like(uid, pid, mark):
+    if (dbcheck_like(uid, pid)):
+            return 1
+    try:
+        sqlite_connection = sqlite3.connect('likes.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_insert_query = '''INSERT INTO likes
+                                (user_id, pic_id, mark)
+                                VALUES
+                                (?, ?, ?);'''
+        valuess = (uid, pid, mark)
+        cursor.execute(sqlite_insert_query, valuess)
+        sqlite_connection.commit()
+        print("Лайк добавлен")
+        cursor.close()
+        return 0
+    except sqlite3.Error as error:
+        print("dbaddlike: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbaddlike: Соединение с SQLite закрыто")
 
 
 def setup_users():
@@ -155,7 +203,6 @@ def setup_users():
 def setup_pics():
     try:
         sqlite_connection = sqlite3.connect('pics.db')
-        #sqlite_connection1 = sqlite3.connect('users.db')
         sqlite_create_table_query = """CREATE TABLE pics(
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             user_id INTEGER,
@@ -172,5 +219,27 @@ def setup_pics():
     finally:
         if (sqlite_connection):
             sqlite_connection.close()
-            #sqlite_connection1.close()
             print("Соединение с SQLite закрыто")
+
+
+def setup_likes():
+    try:
+        sqlite_connection = sqlite3.connect('likes.db')
+        sqlite_create_table_query = """CREATE TABLE likes(
+                            user_id INTEGER,
+                            pic_id INTEGER,
+                            mark INTEGER,
+                            FOREIGN KEY (user_id) REFERENCES users(tele_id),
+                            FOREIGN KEY (pic_id) REFERENCES pics(pic_id));"""
+        cursor = sqlite_connection.cursor()
+        cursor.execute(sqlite_create_table_query)
+        sqlite_connection.commit()
+        print("Таблица лайков создана")
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("setuplikes: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("setuplikes: Соединение с SQLite закрыто")
