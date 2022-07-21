@@ -1,8 +1,9 @@
-import telebot, wikipedia, re, random, os, fnmatch, pathlib, time
+import telebot, wikipedia, re, random, os, fnmatch, pathlib, time, shutil
 import dbhelper as db
 from telebot import types
 
 bot = telebot.TeleBot('5324086067:AAEVyQLHE7hV62JPgT0wxABVIT3nQGthai4')
+tempimgpath = "C:\\Users\\gameh\\Documents\\Pics\\Temp\\"
 imgpath = "C:\\Users\\gameh\\Documents\\Pics\\"
 filepath = "C:\\Users\\gameh\\gameh\\PicsTelegramBot\\"
 
@@ -15,6 +16,17 @@ db.setup_likes()
 
 def add_user(id, name):
 	db.dbadd_user(id, name)
+
+
+def renaming(uid):
+	global n
+	res = os.listdir(tempimgpath)
+	for file in res:
+		n += 1
+		print(n)
+		os.rename(tempimgpath + str(file), imgpath + 'img' + str(n) + '.jpg')
+		db.dbadd_pic(n, uid)
+
 
 @bot.message_handler(commands=["start"])
 def start(m):
@@ -45,7 +57,7 @@ def start(m):
 		num = row[0]
 		rate = row[1]
 		name = imgpath + "img" + str(num) + ".jpg"
-		text = str(ind) + "-е место с рейтингом " + str(rate) + ":"
+		text = str(ind) + "-е место с рейтингом " + str(rate)
 		bot.send_photo(m.chat.id, open(name, 'rb'), caption = text)
 		ind += 1
 		
@@ -53,6 +65,10 @@ def start(m):
 @bot.message_handler(regexp="Дай")
 def handle_give(message):
 	add_user(message.chat.id, message.from_user.first_name)
+	if (n == 0):
+		bot.send_message(message.chat.id, "Картинок в базе нет, пришлите свои")
+		return
+
 	name = imgpath + "img"
 	num = random.randint(1, n)
 	prev = db.dbget_lastnum(message.chat.id)
@@ -100,15 +116,12 @@ def handle_reaction(message):
 def handle_document(message):
 	add_user(message.chat.id, message.from_user.first_name)
 	bot.send_message(message.chat.id, "Принял в БАЗУ")
-	global n
-	n += 1
 	file_info = bot.get_file(message.document.file_id)
 	downloaded_file = bot.download_file(file_info.file_path)
-	src = imgpath + message.document.file_name;
+	src = tempimgpath + message.document.file_name;
 	with open(src, 'wb') as new_file:
 		new_file.write(downloaded_file)
-	os.rename(src, imgpath + 'img' + str(n) + '.jpg')
-	db.dbadd_pic(n, message.chat.id)
+	renaming(message.chat.id)
 
 
 @bot.message_handler(content_types=['photo'])
