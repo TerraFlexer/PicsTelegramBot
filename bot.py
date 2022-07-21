@@ -1,11 +1,12 @@
 import telebot, wikipedia, re, random, os, fnmatch, pathlib, time, shutil
 import dbhelper as db
 from telebot import types
+import envy
 
-bot = telebot.TeleBot('5324086067:AAEVyQLHE7hV62JPgT0wxABVIT3nQGthai4')
-tempimgpath = "C:\\Users\\gameh\\Documents\\Pics\\Temp\\"
-imgpath = "C:\\Users\\gameh\\Documents\\Pics\\"
-filepath = "C:\\Users\\gameh\\gameh\\PicsTelegramBot\\"
+bot = envy.bot
+tempimgpath = envy.tempimgpath
+imgpath = envy.imgpath
+filepath = envy.filepath
 
 n = len(fnmatch.filter(os.listdir(imgpath), '*.jpg'))
 rating_flag = 0
