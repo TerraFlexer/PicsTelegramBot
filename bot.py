@@ -25,7 +25,8 @@ def start(m):
 @bot.message_handler(commands=["help"])
 def help(m):
 	add_user(m.chat.id, m.from_user.first_name)
-	bot.send_message(m.chat.id, '/start - Начало работы\n/help - помощь\nНапиши "Дай" и бот пришлет фулл\nОтправь боту картинку, и он сохранит ее в БАЗУ\n')
+	bot.send_message(m.chat.id, """/start - Начало работы\n/help - Список команд\n/top - Топ 3 картинки с лучшим рейтингом\n
+		Напиши "Дай" и бот пришлет фулл\nОтправь боту картинку, и он сохранит ее в БАЗУ\n""")
 
 
 @bot.message_handler(commands=["get_n"])
