@@ -1,28 +1,46 @@
 import sqlite3
 
 
-def dbget_latnum(id):
+def dbget_lastnum(uid):
     try:
         sqlite_connection = sqlite3.connect('users.db')
         cursor = sqlite_connection.cursor()
-        sqlite_insert_query = """SELECT lastnum
+        sqlite_select_query = """SELECT lastnum
                                 FROM users
                                 WHERE tele_id = ?;"""
-        valuess = (id)
-        cursor.execute(sqlite_insert_query, valuess)
+        cursor.execute(sqlite_select_query, (uid,))
         lastnum = cursor.fetchone()
-        sqlite_connection.commit()
-        print("Пользователь добавлен")
+        print("dbgetlastnum: Значение получено ", lastnum[0])
         cursor.close()
+        return lastnum[0]
 
     except sqlite3.Error as error:
-        print("Ошибка при подключении к sqlite:", error)
-        lastnum = -1
+        print("getlastnum: Ошибка при подключении к sqlite:", error)
     finally:
         if (sqlite_connection):
             sqlite_connection.close()
-            print("Соединение с SQLite закрыто")
-        return int(lastnum)
+            print("dbgetlastnum: Соединение с SQLite закрыто")
+
+
+def dbupdate_lastnum(uid, newlnum):
+    try:
+        sqlite_connection = sqlite3.connect('users.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_update_query = '''UPDATE users
+                                SET lastnum = ?
+                                WHERE tele_id = ?;'''
+        valuess = (newlnum, uid)
+        cursor.execute(sqlite_update_query, valuess)
+        sqlite_connection.commit()
+        print("dbupdate_lastnum: Запись изменена")
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("dbupdate_lastnum: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbupdate_lastnum: Соединение с SQLite закрыто")
 
 
 def dbadd_user(uid, uname):

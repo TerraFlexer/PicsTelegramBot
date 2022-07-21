@@ -40,9 +40,12 @@ def handle_give(message):
 	name = imgpath + "img"
 	num = random.randint(1, n)
 	prev = db.dbget_lastnum(message.chat.id)
-	if (num == prev):
-		num = (num + 1) % n
+	if (n > 1 and num == prev):
+		num += 1
+		if (num > n):
+			num = 1
 	name += str(num) + ".jpg"
+	db.dbupdate_lastnum(message.chat.id, num)
 	markup = types.ReplyKeyboardMarkup(row_width = 1, resize_keyboard = True)
 	likebutn = types.KeyboardButton("like")
 	dislkbutn = types.KeyboardButton("dislike")
