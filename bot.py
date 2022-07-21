@@ -35,6 +35,20 @@ def get_n(m):
 	bot.send_message(m.chat.id, strn)
 
 
+@bot.message_handler(commands=["top"])
+def start(m):
+	add_user(m.chat.id, m.from_user.first_name)
+	results = db.dbget_top()
+	ind = 1
+	for row in results:
+		num = row[0]
+		rate = row[1]
+		name = imgpath + "img" + str(num) + ".jpg"
+		text = str(ind) + "-е место с рейтингом " + str(rate) + ":"
+		bot.send_photo(m.chat.id, open(name, 'rb'), caption = text)
+		ind += 1
+		
+
 @bot.message_handler(regexp="Дай")
 def handle_give(message):
 	add_user(message.chat.id, message.from_user.first_name)

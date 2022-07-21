@@ -64,6 +64,27 @@ def dbget_rating(pid):
             print("dbgetrating: Соединение с SQLite закрыто")
 
 
+def dbget_top():
+    try:
+        sqlite_connection = sqlite3.connect('pics.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_select_query = """SELECT id, rate
+                                FROM pics
+                                ORDER BY rate DESC;"""
+        cursor.execute(sqlite_select_query)
+        rating = cursor.fetchmany(3)
+        print("dbgettop: Топ получен")
+        cursor.close()
+        return rating
+
+    except sqlite3.Error as error:
+        print("dbgettop: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbgettop: Соединение с SQLite закрыто")
+
+
 def dbupdate_rating(uid, pid, rate):
     try:
         sqlite_connection = sqlite3.connect('pics.db')
