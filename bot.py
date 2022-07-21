@@ -61,7 +61,15 @@ def handle_reaction(message):
 	global rating_flag
 	if (rating_flag):
 		rating_flag = 0
-		bot.send_message(message.chat.id, "Ваш голос учтен", reply_markup=types.ReplyKeyboardRemove())
+		if (message.text == "like"):
+			rate_change = 1
+		elif (message.text == "dislike"):
+			rate_change = -1
+		pic_id = db.dbget_lastnum(message.chat.id)
+		db.dbupdate_rating(message.chat.id, pic_id, rate_change)
+		rate = db.dbget_rating(pic_id)
+		msgtxt = "Ваш голос учтен, текущий рейтинг картинки: " + str(rate)
+		bot.send_message(message.chat.id, msgtxt, reply_markup=types.ReplyKeyboardRemove())
 	else:
 		bot.send_message(message.chat.id, "Если вам что - то непонятно, напишите /help")
 

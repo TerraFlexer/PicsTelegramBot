@@ -65,6 +65,49 @@ def dbadd_user(uid, uname):
             print("Соединение с SQLite закрыто")
 
 
+def dbget_rating(pid):
+    try:
+        sqlite_connection = sqlite3.connect('pics.db')
+        cursor = sqlite_connection.cursor()
+        sqlite_select_query = """SELECT rate
+                                FROM pics
+                                WHERE id = ?;"""
+        cursor.execute(sqlite_select_query, (pid,))
+        rating = cursor.fetchone()
+        print("dbgetrating: Значение получено ", rating[0])
+        cursor.close()
+        return rating[0]
+
+    except sqlite3.Error as error:
+        print("dbgetrating: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbgetrating: Соединение с SQLite закрыто")
+
+
+def dbupdate_rating(uid, pid, rate):
+    try:
+        sqlite_connection = sqlite3.connect('pics.db')
+        cursor = sqlite_connection.cursor()
+        currate = dbget_rating(pid)
+        sqlite_update_query = '''UPDATE pics
+                                SET rate = ?
+                                WHERE id = ?;'''
+        valuess = (currate + rate, pid)
+        cursor.execute(sqlite_update_query, valuess)
+        sqlite_connection.commit()
+        print("dbupdate_rating: Запись изменена")
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("dbupdate_rating: Ошибка при подключении к sqlite:", error)
+    finally:
+        if (sqlite_connection):
+            sqlite_connection.close()
+            print("dbupdate_rating: Соединение с SQLite закрыто")
+
+
 def dbadd_pic(id, uid):
     try:
         sqlite_connection = sqlite3.connect('pics.db')
